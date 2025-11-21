@@ -138,3 +138,41 @@ function drawHoldingBlock() {
 }
 
 loop();
+// --- MOBILE TOUCH SUPPORT ---
+
+canvas.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+
+    if (!holdingBlock) {
+        spawnBlock();
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.touches[0].clientX - rect.left - cell / 2;
+    mouseY = e.touches[0].clientY - rect.top - cell / 2;
+}, { passive: false });
+
+
+canvas.addEventListener("touchmove", (e) => {
+    e.preventDefault();
+
+    const rect = canvas.getBoundingClientRect();
+    mouseX = e.touches[0].clientX - rect.left - cell / 2;
+    mouseY = e.touches[0].clientY - rect.top - cell / 2;
+}, { passive: false });
+
+
+canvas.addEventListener("touchend", (e) => {
+    e.preventDefault();
+
+    if (!holdingBlock) return;
+
+    let row = Math.floor(mouseY / cell);
+    let col = Math.floor(mouseX / cell);
+
+    if (canPlace(holdingBlock.shape, row, col)) {
+        placeBlock(holdingBlock.shape, holdingBlock.color, row, col);
+        clearLines();
+        holdingBlock = null;
+    }
+}, { passive: false });
