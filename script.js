@@ -1,145 +1,35 @@
-// SIMPLE BLOCK PUZZLE ENGINE
-const canvas = document.getElementById("game");
+const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = 350;
-canvas.height = 350;
+canvas.width = 300;
+canvas.height = 500;
 
-const gridSize = 10;
-const cell = canvas.width / gridSize;
+// warna block
+let color = "#00FFD5";
 
-let grid = [];
-for (let i = 0; i < gridSize; i++) {
-    grid[i] = Array(gridSize).fill(0);
-}
+// posisi awal
+let block = {
+    x: 120,
+    y: 20,
+    size: 50
+};
 
-// COLORS
-const colors = ["#ff595e","#ffca3a","#8ac926","#1982c4","#6a4c93"];
+function update() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-// RANDOM BLOCK SHAPES
-let shapes = [
-    [[1]],
-    [[1,1]],
-    [[1],[1]],
-    [[1,1,1]],
-    [[1],[1],[1]],
-    [[1,1],[1,1]],
-    [[1,1,1],[0,1,0]],
-];
-
-let holdingBlock = null;
-let mouseX = 0, mouseY = 0;
-
-function drawGrid() {
-    ctx.fillStyle = "#333";
-    ctx.fillRect(0,0,canvas.width,canvas.height);
-
-    for (let r = 0; r < gridSize; r++){
-        for (let c = 0; c < gridSize; c++){
-            if (grid[r][c] !== 0) {
-                ctx.fillStyle = grid[r][c];
-                ctx.fillRect(c*cell, r*cell, cell-2, cell-2);
-            } else {
-                ctx.strokeStyle = "#444";
-                ctx.strokeRect(c*cell, r*cell, cell, cell);
-            }
-        }
-    }
-}
-
-function canPlace(block, row, col) {
-    for (let r = 0; r < block.length; r++){
-        for (let c = 0; c < block[0].length; c++){
-            if (block[r][c] === 1){
-                if (row+r >= gridSize || col+c >= gridSize) return false;
-                if (grid[row+r][col+c] !== 0) return false;
-            }
-        }
-    }
-    return true;
-}
-
-function placeBlock(block,color,row,col) {
-    for (let r = 0; r < block.length; r++){
-        for (let c = 0; c < block[0].length; c++){
-            if (block[r][c] === 1){
-                grid[row+r][col+c] = color;
-            }
-        }
-    }
-}
-
-function clearLines() {
-    // clear rows
-    for (let r = 0; r < gridSize; r++){
-        if (grid[r].every(v => v !== 0)){
-            grid[r] = Array(gridSize).fill(0);
-        }
-    }
-    // clear columns
-    for (let c = 0; c < gridSize; c++){
-        let full = true;
-        for (let r = 0; r < gridSize; r++){
-            if (grid[r][c] === 0) full = false;
-        }
-        if (full){
-            for (let r = 0; r < gridSize; r++){
-                grid[r][c] = 0;
-            }
-        }
-    }
-}
-
-function drawHoldingBlock() {
-    if (!holdingBlock) return;
-    let {shape,color} = holdingBlock;
-
-    ctx.globalAlpha = 0.9;
     ctx.fillStyle = color;
+    ctx.fillRect(block.x, block.y, block.size, block.size);
 
-    for (let r = 0; r < shape.length; r++){
-        for (let c = 0; c < shape[0].length; c++){
-            if (shape[r][c] === 1){
-                ctx.fillRect(mouseX + c*cell, mouseY + r*cell, cell-2, cell-2);
-            }
-        }
+    block.y += 3; // block turun
+
+    if (block.y + block.size > canvas.height) {
+        block.y = 20; // reset naik lagi
     }
-    ctx.globalAlpha = 1;
+
+    requestAnimationFrame(update);
 }
 
-function spawnBlock() {
-    let shape = shapes[Math.floor(Math.random()*shapes.length)];
-    let color = colors[Math.floor(Math.random()*colors.length)];
-    holdingBlock = {shape,color};
-}
-
-canvas.addEventListener("mousedown", () => {
-    if (!holdingBlock) spawnBlock();
-});
-
-canvas.addEventListener("mousemove", (e)=>{
-    const rect = canvas.getBoundingClientRect();
-    mouseX = e.clientX - rect.left - cell/2;
-    mouseY = e.clientY - rect.top - cell/2;
-});
-
-canvas.addEventListener("mouseup", ()=>{
-    if (!holdingBlock) return;
-
-    let row = Math.floor(mouseY / cell);
-    let col = Math.floor(mouseX / cell);
-
-    if (canPlace(holdingBlock.shape,row,col)){
-        placeBlock(holdingBlock.shape, holdingBlock.color, row, col);
-        clearLines();
-        holdingBlock = null;
-    }
-});
-
-function loop() {
-    drawGrid();
-    drawHoldingBlock();
-    requestAnimationFrame(loop);
+update();    requestAnimationFrame(loop);
 }
 
 loop();
