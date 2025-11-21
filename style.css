@@ -1,15 +1,14 @@
 body {
     margin: 0;
-    background: #111;
+    padding: 0;
+    background: #222;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    font-family: sans-serif;
 }
 
 canvas {
-    background: #222;
-    border-radius: 12px;
-    box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    background: #333;
+    border-radius: 10px;
 }
